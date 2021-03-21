@@ -84,7 +84,7 @@ module DeclarativePolicy
 
         passed = nil
         case step.action
-        when :enable then
+        when :enable
           # we only check :enable actions if they have a chance of
           # changing the outcome - if no other rule has enabled or
           # prevented.
@@ -94,7 +94,7 @@ module DeclarativePolicy
           end
 
           debug << inspect_step(step, score, passed) if debug
-        when :prevent then
+        when :prevent
           # we only check :prevent actions if the state hasn't already
           # been prevented.
           unless @state.prevented?

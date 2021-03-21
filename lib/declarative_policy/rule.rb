@@ -17,20 +17,20 @@ module DeclarativePolicy
       # true or false whether this rule passes.
       # `context` is a policy - an instance of
       # DeclarativePolicy::Base.
-      def pass?(context)
+      def pass?(_context)
         raise 'abstract'
       end
 
       # same as #pass? except refuses to do any I/O,
       # returning nil if the result is not yet cached.
       # used for accurately scoring And/Or
-      def cached_pass?(context)
+      def cached_pass?(_context)
         raise 'abstract'
       end
 
       # abstractly, how long would it take to compute
       # this rule? lower-scored rules are tried first.
-      def score(context)
+      def score(_context)
         raise 'abstract'
       end
 
@@ -52,9 +52,9 @@ module DeclarativePolicy
         Not.make(self)
       end
 
-      alias_method :|, :or
-      alias_method :&, :and
-      alias_method :~@, :negate
+      alias | or
+      alias & and
+      alias ~ negate
 
       def inspect
         "#<Rule #{repr}>"
@@ -166,7 +166,7 @@ module DeclarativePolicy
         runner.pass?
       end
 
-      def description(context)
+      def description(_context)
         "User can #{@ability.inspect}"
       end
 

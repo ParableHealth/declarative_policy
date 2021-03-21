@@ -15,7 +15,7 @@ module DeclarativePolicy
       # share a key, the values at that key are concatenated, rather than
       # overridden.
       def merge(other)
-        conflict_proc = proc { |key, my_val, other_val| my_val + other_val }
+        conflict_proc = proc { |_key, my_val, other_val| my_val + other_val }
         AbilityMap.new(@map.merge(other.map, &conflict_proc))
       end
 
@@ -110,9 +110,7 @@ module DeclarativePolicy
 
         name = name.to_sym
 
-        if delegation_block.nil?
-          delegation_block = proc { @subject.__send__(name) } # rubocop:disable GitlabSecurity/PublicSend
-        end
+        delegation_block = proc { @subject.__send__(name) } if delegation_block.nil?
 
         own_delegations[name] = delegation_block
       end
@@ -182,7 +180,7 @@ module DeclarativePolicy
 
         condition = Condition.new(name, opts, &value)
 
-        self.own_conditions[name] = condition
+        own_conditions[name] = condition
 
         define_method(:"#{name}?") { condition(name).pass? }
       end
@@ -245,10 +243,10 @@ module DeclarativePolicy
       runner(ability).debug(*args)
     end
 
-    desc "Unknown user"
+    desc 'Unknown user'
     condition(:anonymous, scope: :user, score: 0) { @user.nil? }
 
-    desc "By default"
+    desc 'By default'
     condition(:default, scope: :global, score: 0) { true }
 
     def repr
@@ -263,7 +261,7 @@ module DeclarativePolicy
         if @user
           @user.to_reference
         else
-          "<anonymous>"
+          '<anonymous>'
         end
 
       "(#{user_repr} : #{subject_repr})"

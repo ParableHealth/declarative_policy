@@ -75,9 +75,7 @@ module DeclarativePolicy
     end
 
     def compute_class_for_class(subject_class)
-      if subject_class.respond_to?(:declarative_policy_class)
-        return subject_class.declarative_policy_class.constantize
-      end
+      return subject_class.declarative_policy_class.constantize if subject_class.respond_to?(:declarative_policy_class)
 
       subject_class.ancestors.each do |klass|
         name = klass.name
@@ -103,7 +101,7 @@ module DeclarativePolicy
       seen = Set.new
 
       while subject.respond_to?(:declarative_policy_delegate)
-        raise ArgumentError, "circular delegations" if seen.include?(subject.object_id)
+        raise ArgumentError, 'circular delegations' if seen.include?(subject.object_id)
 
         seen << subject.object_id
         subject = subject.declarative_policy_delegate
