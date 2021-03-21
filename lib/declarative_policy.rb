@@ -14,6 +14,7 @@ require_relative 'declarative_policy/runner'
 require_relative 'declarative_policy/step'
 require_relative 'declarative_policy/base'
 
+# DeclarativePolicy: A DSL based authorization framework
 module DeclarativePolicy
   extend PreferredScope
 
