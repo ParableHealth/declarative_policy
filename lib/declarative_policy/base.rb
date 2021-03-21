@@ -7,6 +7,7 @@ module DeclarativePolicy
     # a given ability. See Base.ability_map
     class AbilityMap
       attr_reader :map
+
       def initialize(map = {})
         @map = map
       end
@@ -110,7 +111,9 @@ module DeclarativePolicy
 
         name = name.to_sym
 
+        # rubocop: disable GitlabSecurity/PublicSend
         delegation_block = proc { @subject.__send__(name) } if delegation_block.nil?
+        # rubocop: enable GitlabSecurity/PublicSend
 
         own_delegations[name] = delegation_block
       end
@@ -212,6 +215,7 @@ module DeclarativePolicy
     # It also stores a reference to the cache, so it can be used
     # to cache computations by e.g. ManifestCondition.
     attr_reader :user, :subject
+
     def initialize(user, subject, opts = {})
       @user = user
       @subject = subject

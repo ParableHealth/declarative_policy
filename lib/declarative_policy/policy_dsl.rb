@@ -36,7 +36,7 @@ module DeclarativePolicy
     def method_missing(msg, *args, &block)
       return super unless @context_class.respond_to?(msg)
 
-      @context_class.__send__(msg, *args, &block)
+      @context_class.__send__(msg, *args, &block) # rubocop: disable GitlabSecurity/PublicSend
     end
 
     def respond_to_missing?(msg)

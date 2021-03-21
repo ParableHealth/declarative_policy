@@ -31,6 +31,7 @@ module DeclarativePolicy
 
     # a Runner contains a list of Steps to be run.
     attr_reader :steps
+
     def initialize(steps)
       @steps = steps
       @state = nil
@@ -47,7 +48,7 @@ module DeclarativePolicy
     def score
       return 0 if cached?
 
-      steps.map(&:score).inject(0, :+)
+      steps.sum(&:score)
     end
 
     def merge_runner(other)
@@ -151,27 +152,15 @@ module DeclarativePolicy
           # Once we set this, we never need to unset it, because a single
           # prevent will stop this from being enabled
           remaining_steps = remaining_preventers
-        else
+        elsif remaining_enablers.empty?
           # if the permission hasn't yet been enabled and we only have
           # prevent steps left, we short-circuit the state here
-          @state.prevent! if remaining_enablers.empty?
+          @state.prevent!
         end
 
         return if remaining_steps.empty?
 
-        lowest_score = Float::INFINITY
-        next_step = nil
-
-        remaining_steps.each do |step|
-          score = step.score
-
-          if score < lowest_score
-            next_step = step
-            lowest_score = score
-          end
-
-          break if lowest_score == 0
-        end
+        next_step, lowest_score = next_step_and_score(remaining_steps)
 
         [remaining_steps, remaining_enablers, remaining_preventers].each do |set|
           set.delete(next_step)
@@ -179,6 +168,24 @@ module DeclarativePolicy
 
         yield next_step, lowest_score
       end
+    end
+
+    def next_step_and_score(remaining_steps)
+      lowest_score = Float::INFINITY
+      next_step = nil
+
+      remaining_steps.each do |step|
+        score = step.score
+
+        if score < lowest_score
+          next_step = step
+          lowest_score = score
+        end
+
+        break if lowest_score.zero?
+      end
+
+      [next_step, score]
     end
 
     # Formatter for debugging output.

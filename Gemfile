@@ -13,3 +13,7 @@ group :test do
   gem 'rspec', '~> 3.0'
   gem 'rspec-parameterized', require: false
 end
+
+group :development, :test do
+  gem 'gitlab-styles', '~> 6.1.0', require: false
+end

@@ -47,9 +47,10 @@ module DeclarativePolicy
       policy_class
     end
 
-    def has_policy?(subject)
+    def policy?(subject)
       !class_for_class(subject.class).nil?
     end
+    alias_method :has_policy?, :policy?
 
     private
 
@@ -79,21 +80,21 @@ module DeclarativePolicy
 
       subject_class.ancestors.each do |klass|
         name = klass.name
+        klass = policy_class(name)
 
-        next unless name
-
-        begin
-          policy_class = "#{name}Policy".constantize
-
-          # NOTE: the < operator here tests whether policy_class
-          # inherits from Base. We can't use #is_a? because that
-          # tests for *instances*, not *subclasses*.
-          return policy_class if policy_class < Base
-        rescue NameError
-          nil
-        end
+        return klass if klass
       end
 
+      nil
+    end
+
+    def policy_class(name)
+      return unless name
+
+      policy_class = "#{name}Policy".constantize
+
+      return policy_class if policy_class < Base
+    rescue NameError
       nil
     end
 

@@ -8,6 +8,7 @@ module DeclarativePolicy
   # :prevent or :enable.
   class Step
     attr_reader :context, :rule, :action
+
     def initialize(context, rule, action)
       @context = context
       @rule = rule

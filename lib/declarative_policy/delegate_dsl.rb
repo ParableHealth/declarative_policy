@@ -14,5 +14,9 @@ module DeclarativePolicy
 
       @rule_dsl.delegate(@delegate_name, msg)
     end
+
+    def respond_to_missing?(msg, include_all)
+      true
+    end
   end
 end

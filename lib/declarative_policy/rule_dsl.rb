@@ -43,5 +43,9 @@ module DeclarativePolicy
         cond(msg.to_sym)
       end
     end
+
+    def respond_to_missing?(symbol, include_all)
+      true
+    end
   end
 end

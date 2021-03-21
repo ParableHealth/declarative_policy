@@ -52,9 +52,9 @@ module DeclarativePolicy
         Not.make(self)
       end
 
-      alias | or
-      alias & and
-      alias ~ negate
+      alias_method :|, :or
+      alias_method :&, :and
+      alias_method :~, :negate
 
       def inspect
         "#<Rule #{repr}>"
@@ -146,6 +146,7 @@ module DeclarativePolicy
     # on the same subject.
     class Ability < Base
       attr_reader :ability
+
       def initialize(ability)
         @ability = ability
       end
@@ -179,6 +180,7 @@ module DeclarativePolicy
     # if all of them do.
     class And < Base
       attr_reader :rules
+
       def initialize(rules)
         @rules = rules
       end
@@ -199,7 +201,7 @@ module DeclarativePolicy
         return 0 unless cached_pass?(context).nil?
 
         # note that cached rules will have score 0 anyways.
-        @rules.map { |r| r.score(context) }.inject(0, :+)
+        @rules.sum { |r| r.score(context) }
       end
 
       def pass?(context)
@@ -229,6 +231,7 @@ module DeclarativePolicy
     # Logical `or`. Mirrors And.
     class Or < Base
       attr_reader :rules
+
       def initialize(rules)
         @rules = rules
       end
@@ -265,7 +268,7 @@ module DeclarativePolicy
       def score(context)
         return 0 unless cached_pass?(context).nil?
 
-        @rules.map { |r| r.score(context) }.inject(0, :+)
+        @rules.sum { |r| r.score(context) }
       end
 
       def repr
@@ -275,6 +278,7 @@ module DeclarativePolicy
 
     class Not < Base
       attr_reader :rule
+
       def initialize(rule)
         @rule = rule
       end

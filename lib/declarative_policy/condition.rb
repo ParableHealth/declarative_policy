@@ -7,9 +7,8 @@ module DeclarativePolicy
   # declaration. It holds on to the block to be instance_eval'd
   # on a context (instance of Base) later, via #compute.
   class Condition
-    attr_reader :name, :description, :scope
-    attr_reader :manual_score
-    attr_reader :context_key
+    attr_reader :name, :description, :scope, :manual_score, :context_key
+
     def initialize(name, opts = {}, &compute)
       @name = name
       @compute = compute
