@@ -1,19 +1,18 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 RSpec.describe DeclarativePolicy do
   describe '.class_for' do
-    it 'uses declarative_policy_class if present' do
-      instance = Gitlab::ErrorTracking::ErrorEvent.new
+    context 'when the policy class is present' do
+      before do
+        stub_const('Foo', Class.new)
+        stub_const('FooPolicy', Class.new(DeclarativePolicy::Base))
+      end
 
-      expect(described_class.class_for(instance)).to eq(ErrorTracking::BasePolicy)
-    end
+      it 'uses declarative_policy_class' do
+        instance = Foo.new
 
-    it 'infers policy class from name' do
-      instance = PersonalSnippet.new
-
-      expect(described_class.class_for(instance)).to eq(PersonalSnippetPolicy)
+        expect(described_class.class_for(instance)).to eq(FooPolicy)
+      end
     end
 
     it 'raises error if not found' do

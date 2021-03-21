@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
-require_dependency 'rspec-parameterized'
+require 'rspec-parameterized'
 
 RSpec.describe 'DeclarativePolicy overrides' do
   let(:foo_policy) do

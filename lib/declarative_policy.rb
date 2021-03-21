@@ -1,16 +1,18 @@
 # frozen_string_literal: true
 
-require_dependency 'declarative_policy/cache'
-require_dependency 'declarative_policy/condition'
-require_dependency 'declarative_policy/delegate_dsl'
-require_dependency 'declarative_policy/policy_dsl'
-require_dependency 'declarative_policy/rule_dsl'
-require_dependency 'declarative_policy/preferred_scope'
-require_dependency 'declarative_policy/rule'
-require_dependency 'declarative_policy/runner'
-require_dependency 'declarative_policy/step'
+require 'active_support/dependencies'
+require 'active_support/core_ext'
 
-require_dependency 'declarative_policy/base'
+require_relative 'declarative_policy/cache'
+require_relative 'declarative_policy/condition'
+require_relative 'declarative_policy/delegate_dsl'
+require_relative 'declarative_policy/policy_dsl'
+require_relative 'declarative_policy/rule_dsl'
+require_relative 'declarative_policy/preferred_scope'
+require_relative 'declarative_policy/rule'
+require_relative 'declarative_policy/runner'
+require_relative 'declarative_policy/step'
+require_relative 'declarative_policy/base'
 
 module DeclarativePolicy
   extend PreferredScope
