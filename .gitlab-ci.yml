@@ -22,5 +22,11 @@ rubocop:
     - bundle exec rubocop
 
 rspec:
+  image: "ruby:$RUBY_VERSION"
   script:
     - bundle exec rspec
+  parallel:
+    matrix:
+      - RUBY_VERSION:
+        - "2.7"
+        - "3.0"
