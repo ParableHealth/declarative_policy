@@ -4,3 +4,4 @@ inherit_gem:
 
 AllCops:
   TargetRubyVersion: 2.6
+  NewCops: enable
