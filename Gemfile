@@ -12,6 +12,7 @@ gem 'rubocop', require: false
 group :test do
   gem 'rspec', '~> 3.0'
   gem 'rspec-parameterized', require: false
+  gem 'pry-byebug'
 end
 
 group :development, :test do

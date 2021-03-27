@@ -15,6 +15,21 @@ RSpec.describe DeclarativePolicy do
       end
     end
 
+    context 'when there is no policy for the class, but there is one for a superclass' do
+      before do
+        foo = Class.new
+        stub_const('Foo', foo)
+        stub_const('Bar', Class.new(foo))
+        stub_const('FooPolicy', Class.new(DeclarativePolicy::Base))
+      end
+
+      it 'uses declarative_policy_class' do
+        instance = Bar.new
+
+        expect(described_class.class_for(instance)).to eq(FooPolicy)
+      end
+    end
+
     it 'raises error if not found' do
       instance = Object.new
 
