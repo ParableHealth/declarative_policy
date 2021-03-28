@@ -1,22 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_context 'with vehicle model' do
-  let(:model) do
-    {
-      User: Struct.new(:name, :age, :driving_license, :blood_alcohol, :trusted) do
-        def trusts?(user)
-          trusted.include?(user.name)
-        end
-
-        alias_method :to_reference, :name
-      end,
-      Laws: Struct.new(:max_blood_alcohol, :minimum_age),
-      Registration: Struct.new(:country),
-      Country: Struct.new(:driving_laws),
-      Vehicle: Struct.new(:owner, :registration)
-    }
-  end
-
+RSpec.shared_context 'with vehicle policy' do
   let(:vehicle_policy) do
     # See README.md
     Class.new(DeclarativePolicy::Base) do
@@ -42,7 +26,6 @@ RSpec.shared_context 'with vehicle model' do
   end
 
   before do
-    stub_const('Vehicle', model[:Vehicle])
     stub_const('VehiclePolicy', vehicle_policy)
   end
 end

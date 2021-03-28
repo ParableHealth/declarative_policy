@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe 'conditions and rules' do
-  include_context 'with vehicle model'
+  include_context 'with vehicle policy'
 
   def policy
-    user = model[:User].new(name, age, license, blood_alcohol, [])
-    owner = model[:User].new(:owner, 32, nil, nil, trusted_users)
-    laws = model[:Laws].new(0.01, 18)
-    reg = model[:Registration].new(model[:Country].new(laws))
-    car = model[:Vehicle].new(owner, reg)
+    user = User.new(name: name, age: age, driving_license: license, blood_alcohol: blood_alcohol)
+    owner = User.new(name: :owner, trusted: trusted_users)
+    reg = Registration.new(country: Country.moderate)
+    car = Vehicle.new(owner: owner, registration: reg)
 
     DeclarativePolicy.policy_for(user, car, cache: {})
   end
@@ -17,22 +16,22 @@ RSpec.describe 'conditions and rules' do
     using RSpec::Parameterized::TableSyntax
 
     where(:name, :age, :trusted_users, :license, :blood_alcohol, :can, :cannot) do
-      valid_licence = Struct.new(:valid?).new(true)
-
       # full permissions
-      :owner  | 18 | []        | valid_licence | 0.0   | [:drive_vehicle, :sell_vehicle] | []
+      :owner  | 18 | []        | License.valid | 0.0   | [:drive_vehicle, :sell_vehicle] | []
       # drive only
-      :driver | 18 | [:driver] | valid_licence | 0.0   | [:drive_vehicle] | [:sell_vehicle]
-      :driver | 18 | [:driver] | valid_licence | 0.001 | [:drive_vehicle] | [:sell_vehicle]
+      :driver | 18 | [:driver] | License.valid | 0.0   | [:drive_vehicle] | [:sell_vehicle]
+      :driver | 18 | [:driver] | License.valid | 0.001 | [:drive_vehicle] | [:sell_vehicle]
       # sell-only
-      :owner | 17 | [:driver] | valid_licence | 0.0   | [:sell_vehicle] | [:drive_vehicle]
-      :owner | 18 | [:driver] | valid_licence | 0.2   | [:sell_vehicle] | [:drive_vehicle]
-      :owner | 18 | [:driver] | nil           | 0.0   | [:sell_vehicle] | [:drive_vehicle]
+      :owner | 17 | [:driver] | License.valid   | 0.0   | [:sell_vehicle] | [:drive_vehicle]
+      :owner | 18 | [:driver] | License.valid   | 0.2   | [:sell_vehicle] | [:drive_vehicle]
+      :owner | 18 | [:driver] | License.expired | 0.0   | [:sell_vehicle] | [:drive_vehicle]
+      :owner | 18 | [:driver] | nil             | 0.0   | [:sell_vehicle] | [:drive_vehicle]
       # no permissions
-      :driver | 17 | [:driver] | valid_licence | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | []        | valid_licence | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | [:driver] | valid_licence | 0.2   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | [:driver] | nil           | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
+      :driver | 17 | [:driver] | License.valid   | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
+      :driver | 18 | []        | License.valid   | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
+      :driver | 18 | [:driver] | License.valid   | 0.2   | [] | [:drive_vehicle, :sell_vehicle]
+      :driver | 18 | [:driver] | License.expired | 0.2   | [] | [:drive_vehicle, :sell_vehicle]
+      :driver | 18 | [:driver] | nil             | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
     end
 
     with_them do
