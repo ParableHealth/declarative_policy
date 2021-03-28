@@ -261,7 +261,7 @@ module DeclarativePolicy
           @subject.inspect
         end
 
-      user_repr = @user.try(:to_reference) || @user.try(:name) || '<anonymous>'
+      user_repr = @user.try(:to_reference) || '<anonymous>'
 
       "(#{user_repr} : #{subject_repr})"
     end
