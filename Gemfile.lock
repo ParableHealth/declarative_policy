@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    declarative_policy (0.1.0)
+    declarative_policy (1.0.0)
 
 GEM
   remote: https://rubygems.org/
