@@ -18,3 +18,7 @@ end
 group :development, :test do
   gem 'gitlab-styles', '~> 6.1.0', require: false
 end
+
+group :development, :test, :danger do
+  gem 'gitlab-dangerfiles', '~> 1.1.0', require: false
+end
