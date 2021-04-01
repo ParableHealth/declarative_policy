@@ -18,9 +18,6 @@ module Danger
     # First-match win, so be sure to put more specific regex at the top...
     # rubocop: disable Style/RegexpLiteral
     CATEGORIES = {
-      %r{(\A|/)(
-        \.gitlab/ci/frontend\.gitlab-ci\.yml
-      )\z}x => %i[frontend engineering_productivity],
       %r{\A(\.gitlab-ci\.yml\z|\.gitlab/ci)} => :engineering_productivity,
       %r{\Alefthook.yml\z} => :engineering_productivity,
       %r{\A\.editorconfig\z} => :engineering_productivity,
@@ -30,11 +27,7 @@ module Danger
       %r{\Atooling/} => :engineering_productivity,
       %r{(CODEOWNERS)} => :engineering_productivity,
       %r{\A(Gemfile|Gemfile.lock|Rakefile)\z} => :backend,
-      %r{\A[A-Z_]+_VERSION\z} => :backend,
       %r{\A\.rubocop((_manual)?_todo)?\.yml\z} => :backend,
-      # Files that don't fit into any category are marked with :none
-      %r{\A(ee/)?changelogs/} => :none,
-      # Fallbacks in case the above patterns miss anything
       %r{\.rb\z} => :backend,
       %r{(
         \.(md|txt)\z |
@@ -56,7 +49,11 @@ module Danger
     end
 
     def project_name
-      'declarative-policy'
+      # 'declarative-policy'
+      # TODO: roulette uses the project name to find reviewers, but the gitlab team
+      # directory currently does not have any team members assigned to the declarative-policy
+      # project. We thus are piggybacking on 'gitlab' for now.
+      'gitlab'
     end
   end
 end

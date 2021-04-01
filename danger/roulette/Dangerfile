@@ -81,8 +81,7 @@ changes.delete(:feature_flag)
 categories = changes.keys.to_set.delete(:unknown)
 
 if changes.any?
-  project = 'gitlab' # TODO: add people to this project
-  # project = project_helper.project_name
+  project = project_helper.project_name
 
   random_roulette_spins = roulette.spin(project, categories, timezone_experiment: false)
 
@@ -96,5 +95,3 @@ if changes.any?
   unknown = changes.fetch(:unknown, [])
   markdown(UNKNOWN_FILES_MESSAGE + helper.markdown_list(unknown)) unless unknown.empty?
 end
-
-# vim: ft=ruby
