@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module Danger
-  # Common helper functions for our danger scripts. See Tooling::Danger::ProjectHelper
-  # for more details
+  # Project specific configuration
   class ProjectHelper < ::Danger::Plugin
     LOCAL_RULES ||= %w[
       changelog
