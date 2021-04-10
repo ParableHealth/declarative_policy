@@ -13,6 +13,8 @@ require_relative 'declarative_policy/rule'
 require_relative 'declarative_policy/runner'
 require_relative 'declarative_policy/step'
 require_relative 'declarative_policy/base'
+require_relative 'declarative_policy/nil_policy'
+require_relative 'declarative_policy/configuration'
 
 # DeclarativePolicy: A DSL based authorization framework
 module DeclarativePolicy
@@ -36,8 +38,8 @@ module DeclarativePolicy
     end
 
     def class_for(subject)
-      return GlobalPolicy if subject == :global
-      return NilPolicy if subject.nil?
+      return configuration.nil_policy if subject.nil?
+      return configuration.named_policy(subject) if subject.is_a?(Symbol)
 
       subject = find_delegate(subject)
 
@@ -47,12 +49,28 @@ module DeclarativePolicy
       policy_class
     end
 
+    def configure(&block)
+      configuration.instance_eval(&block)
+
+      nil
+    end
+
+    # Reset configuration
+    def configure!(&block)
+      @configuration = DeclarativePolicy::Configuration.new
+      configure(&block) if block
+    end
+
     def policy?(subject)
       !class_for_class(subject.class).nil?
     end
     alias_method :has_policy?, :policy?
 
     private
+
+    def configuration
+      @configuration ||= DeclarativePolicy::Configuration.new
+    end
 
     # This method is heavily cached because there are a lot of anonymous
     # modules in play in a typical rails app, and #name performs quite
