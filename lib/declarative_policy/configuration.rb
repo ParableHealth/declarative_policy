@@ -6,6 +6,7 @@ module DeclarativePolicy
 
     def initialize
       @named_policies = {}
+      @name_transformation = ->(name) { "#{name}Policy" }
     end
 
     def named_policy(name, policy = nil)
@@ -18,6 +19,19 @@ module DeclarativePolicy
       @nil_policy = policy if policy
 
       @nil_policy || ::DeclarativePolicy::NilPolicy
+    end
+
+    def name_transformation(&block)
+      @name_transformation = block
+      nil
+    end
+
+    def policy_class(domain_class_name)
+      return unless domain_class_name
+
+      @name_transformation.call(domain_class_name).constantize
+    rescue NameError
+      nil
     end
   end
 end

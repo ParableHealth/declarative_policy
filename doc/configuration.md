@@ -62,3 +62,17 @@ determine the permission check.
 
 Using `:global` is a convention, but any policy name can be used.
 
+## Name transformation
+
+By default, policy classes are expected to be named for the domain classes, with
+a `Policy` suffix. So a domain class of `Foo` would resolve to a `FooPolicy`.
+
+This logic can be customized by specifying the `name_transformation` rule. To
+instead have all policies be placed in a `Policies` namespace, so that `Foo`
+would have its policy at `Policies::Foo`, we can configure that with:
+
+```ruby
+DeclarativePolicy.configure do
+  name_transformation { |name| "Policies::#{name}" }
+end
+```

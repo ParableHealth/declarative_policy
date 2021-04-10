@@ -107,13 +107,9 @@ module DeclarativePolicy
     end
 
     def policy_class(name)
-      return unless name
+      clazz = configuration.policy_class(name)
 
-      policy_class = "#{name}Policy".constantize
-
-      return policy_class if policy_class < Base
-    rescue NameError
-      nil
+      clazz if clazz && clazz < Base
     end
 
     def find_delegate(subject)

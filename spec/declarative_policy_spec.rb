@@ -82,6 +82,21 @@ RSpec.describe DeclarativePolicy do
       end
     end
 
+    context 'when name transformation has been configured' do
+      before do
+        stub_const('Bar', Class.new)
+        stub_const('Policies::Bar', Class.new(DeclarativePolicy::Base))
+
+        described_class.configure do
+          name_transformation { |name| "Policies::#{name}" }
+        end
+      end
+
+      it 'uses the configured transformation' do
+        expect(described_class.class_for(Bar.new)).to eq(Policies::Bar)
+      end
+    end
+
     it 'raises error if not found' do
       instance = Object.new
 
