@@ -14,6 +14,23 @@ top-level application directory: `app/policies`, and place all policy
 definitions in there. If you have an `Invoice` model at `app/models/invoice.rb`,
 then you would create an `InvoicePolicy` at `app/policies/invoice_policy.rb`.
 
+## Invocation
+
+We evaluate policies by instantiating them with `DeclarativePolicy::policy_for`,
+and then evaluating them with `DeclarativePolicy::Base#allowed?`.
+
+You may wish to define a method to abstract policy evaluation. Something like:
+
+```ruby
+def allowed?(user, ability, object)
+  opts = { cache: Cache.current_cache } # re-using a cache between checks eliminates duplication of work
+  policy = DeclarativePolicy.policy_for(user, object, opts)
+  policy.allowed?(ability)
+end
+```
+
+We will assume the presence of such a method below.
+
 ## Defining rules in the DSL
 
 The DSL has two primary parts: defining **conditions** and **rules**.
@@ -21,9 +38,36 @@ The DSL has two primary parts: defining **conditions** and **rules**.
 For example, imagine we have a data model containing vehicles and users, and we
 want to know if a user can drive a vehicle. We need a `VehiclePolicy`:
 
+```ruby
+class VehiclePolicy < DeclarativePolicy::Base
+  # conditions go here by convention
+  
+  # rules go here by convention
+  
+  # helper methods go last
+end
+```
+
 ### Conditions
 
-Conditions are facts about the state of the system
+Conditions are facts about the state of the system.
+
+They have access to two elements of the proposition:
+
+- `@user` - the representation of a user in your system: the *subject* of the proposition.
+  `user` in `allowed?(user, ability, object)`. `@user` may be `nil`, which means
+  that the current user is anonymous (for example this may reflect an
+  unauthenticated request in your system).
+- `@subject` - any domain object that has an associated policy: the *object* of
+  the predicate of the proposition. `object` in `allowed?(user, ability, object)`.
+  `@subject` is never `nil`. See [handling `nil` values](./configuration.md#handling-nil-values)
+  for details of how to apply policies to `nil` values.
+  
+
+They are defined as `condition(name, **options, &block)`, where the block is
+evaluated in the context of an instance of the policy.
+
+For example:
 
 ```ruby
 condition(:owns) { @subject.owner == @user }
@@ -36,6 +80,25 @@ condition(:has_access_to, score: 3) { @subject.owner.trusts?(@user) }
 
 These can be defined in any order, but we consider it best practice to define
 conditions at the top of the file.
+
+Conditions may call methods of the policy class, which can be helpful for
+memoizing some intermediate state:
+
+```ruby
+condition(:full_license) { license.full? }
+condition(:learner_license) { license.learner? }
+condition(:hgv_license) { license.heavy_goods? }
+
+def license
+  @license ||= Licenses.by_country(@user.country_of_residence).for_user(@user)
+end
+```
+
+Conditions are evaluated at most once, and their values are automatically
+memoized and cached (see [caching](./caching.md) for more detail).
+
+If you want to perform I/O (such as database access) or expensive computations,
+place this access in a condition.
 
 ### Rules
 
@@ -61,6 +124,11 @@ rule { old_enough_to_drive }.policy do
   enable :vote
 end
 ```
+
+Rule blocks do not have access to the internal state of the policy, and cannot
+access the `@user` or `@subject`, or any methods on the policy instance. You
+should not perform I/O in a rule. They exist solely to define the logical rules
+of implication and combination between conditions.
 
 ### Complex conditions
 
