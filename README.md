@@ -1,5 +1,7 @@
 # `DeclarativePolicy`: A Declarative Authorization Library
 
+[![Gem Version](https://badge.fury.io/rb/declarative_policy.svg)](https://badge.fury.io/rb/declarative_policy)
+
 This library provides a DSL for writing authorization policies.
 
 It can be used to separate logic from permissions, and has been
