@@ -130,7 +130,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitLab at
+Bug reports and merge requests are welcome on GitLab at
 https://gitlab.com/gitlab-org/declarative-policy. This project is intended to be
 a safe, welcoming space for collaboration, and contributors are expected to
 adhere to the [GitLab code of conduct](https://about.gitlab.com/community/contribute/code-of-conduct/).
