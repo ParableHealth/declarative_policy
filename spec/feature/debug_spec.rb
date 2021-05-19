@@ -24,6 +24,7 @@ RSpec.describe 'debugging' do
         expect(out).to match [
           start_with("- [0] enable when owns"),
           start_with("+ [3] enable when has_access_to"),
+          start_with("- [3] prevent when banned"),
           start_with("- [4] prevent when intoxicated"),
           start_with("- [14] prevent when ~old_enough_to_drive"),
           start_with("- [14] prevent when ~has_driving_license")
@@ -42,6 +43,7 @@ RSpec.describe 'debugging' do
         expect(out).to match [
           start_with("- [0] enable when owns"),
           start_with("- [3] enable when has_access_to"),
+          start_with("  [3] prevent when banned"),
           start_with("  [4] prevent when intoxicated"),
           start_with("  [14] prevent when ~old_enough_to_drive"),
           start_with("  [14] prevent when ~has_driving_license")
@@ -59,6 +61,7 @@ RSpec.describe 'debugging' do
         expect(out).to match [
           start_with("- [0] enable when owns"),
           start_with("+ [3] enable when has_access_to"),
+          start_with("- [3] prevent when banned"),
           start_with("+ [4] prevent when intoxicated"),
           start_with("  [14] prevent when ~old_enough_to_drive"),
           start_with("  [14] prevent when ~has_driving_license")

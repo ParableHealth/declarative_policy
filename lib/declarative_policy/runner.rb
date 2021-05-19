@@ -80,7 +80,7 @@ module DeclarativePolicy
     def run(debug = nil)
       @state = State.new
 
-      steps_by_score do |step, score|
+      steps_by_score(!!debug) do |step, score|
         break if !debug && @state.prevented?
 
         passed = nil
@@ -129,7 +129,7 @@ module DeclarativePolicy
     #
     # For each step, we yield the step object along with the computed score
     # for debugging purposes.
-    def steps_by_score
+    def steps_by_score(debugging)
       flatten_steps!
 
       if @steps.size > 50
@@ -154,7 +154,7 @@ module DeclarativePolicy
           # if the permission hasn't yet been enabled and we only have
           # prevent steps left, we short-circuit the state here
           @state.prevent!
-          return
+          return unless debugging
         end
 
         return if remaining_steps.empty?
