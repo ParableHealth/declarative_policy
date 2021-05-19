@@ -93,8 +93,6 @@ module DeclarativePolicy
             passed = step.pass?
             @state.enable! if passed
           end
-
-          debug << inspect_step(step, score, passed) if debug
         when :prevent
           # we only check :prevent actions if the state hasn't already
           # been prevented.
@@ -102,10 +100,10 @@ module DeclarativePolicy
             passed = step.pass?
             @state.prevent! if passed
           end
-
-          debug << inspect_step(step, score, passed) if debug
         else raise "invalid action #{step.action.inspect}"
         end
+
+        debug << inspect_step(step, score, passed) if debug
       end
 
       @state
@@ -156,6 +154,7 @@ module DeclarativePolicy
           # if the permission hasn't yet been enabled and we only have
           # prevent steps left, we short-circuit the state here
           @state.prevent!
+          return
         end
 
         return if remaining_steps.empty?

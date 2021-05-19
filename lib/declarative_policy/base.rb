@@ -284,7 +284,7 @@ module DeclarativePolicy
             own_runner
           else
             delegated_runners = delegated_policies.values.compact.map { |p| p.runner(ability) }
-            delegated_runners.inject(own_runner, &:merge_runner)
+            delegated_runners.reduce(own_runner, &:merge_runner)
           end
         end
     end
