@@ -3,6 +3,7 @@
 require 'bundler/setup'
 require 'declarative_policy'
 require 'pry-byebug'
+require 'rspec-parameterized'
 
 Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 
