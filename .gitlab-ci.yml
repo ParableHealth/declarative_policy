@@ -52,20 +52,25 @@ danger-review:
 brakeman-sast:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 gemnasium-dependency_scanning:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 bundler-audit-dependency_scanning:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 license_scanning:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 secret_detection:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
