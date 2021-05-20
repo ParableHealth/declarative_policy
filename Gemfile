@@ -6,8 +6,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'activesupport', '>= 6.0'
-gem 'rake', '~> 12.0'
-gem 'rubocop', require: false
 
 group :test do
   gem 'rspec', '~> 3.0'
@@ -17,6 +15,8 @@ end
 
 group :development, :test do
   gem 'gitlab-styles', '~> 6.1.0', require: false
+  gem 'rake', '~> 12.0'
+  gem 'rubocop', require: false
 end
 
 group :development, :test, :danger do

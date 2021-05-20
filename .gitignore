@@ -9,3 +9,4 @@
 # rspec failure tracking
 .rspec_status
 declarative_policy-*.gem
+.tool-versions

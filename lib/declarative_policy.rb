@@ -20,9 +20,6 @@ require_relative 'declarative_policy/configuration'
 module DeclarativePolicy
   extend PreferredScope
 
-  CLASS_CACHE_MUTEX = Mutex.new
-  CLASS_CACHE_IVAR = :@__DeclarativePolicy_CLASS_CACHE
-
   class << self
     def policy_for(user, subject, opts = {})
       cache = opts[:cache] || {}
@@ -72,28 +69,7 @@ module DeclarativePolicy
       @configuration ||= DeclarativePolicy::Configuration.new
     end
 
-    # This method is heavily cached because there are a lot of anonymous
-    # modules in play in a typical rails app, and #name performs quite
-    # slowly for anonymous classes and modules.
-    #
-    # See https://bugs.ruby-lang.org/issues/11119
-    #
-    # if the above bug is resolved, this caching could likely be removed.
     def class_for_class(subject_class)
-      unless subject_class.instance_variable_defined?(CLASS_CACHE_IVAR)
-        CLASS_CACHE_MUTEX.synchronize do
-          # re-check in case of a race
-          break if subject_class.instance_variable_defined?(CLASS_CACHE_IVAR)
-
-          policy_class = compute_class_for_class(subject_class)
-          subject_class.instance_variable_set(CLASS_CACHE_IVAR, policy_class)
-        end
-      end
-
-      subject_class.instance_variable_get(CLASS_CACHE_IVAR)
-    end
-
-    def compute_class_for_class(subject_class)
       return subject_class.declarative_policy_class.constantize if subject_class.respond_to?(:declarative_policy_class)
 
       subject_class.ancestors.each do |klass|
