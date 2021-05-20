@@ -1,21 +1,20 @@
 image: "ruby:2.7"
 
+include:
+  - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
 .tests:
   stage: test
-  only:
-    refs:
-      - master
-      - tags
-      - merge_requests
-
-# Cache gems in between builds
-cache:
-  paths:
-    - vendor/ruby
-
-before_script:
-  - ruby -v  # Print out ruby version for debugging
-  - bundle install -j $(nproc) --path vendor  # Install dependencies into ./vendor/ruby
+  cache:
+    paths:
+      - vendor/ruby
+  before_script:
+    - ruby -v  # Print out ruby version for debugging
+    - bundle install -j $(nproc) --path vendor  # Install dependencies into ./vendor/ruby
 
 rubocop:
   extends: .tests
@@ -46,3 +45,27 @@ danger-review:
       else
         bundle exec danger --fail-on-errors=true --verbose
       fi
+
+# run security jobs on MRs
+# see: https://gitlab.com/gitlab-org/gitlab/-/issues/218444#note_478761991
+
+brakeman-sast:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+gemnasium-dependency_scanning:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+bundler-audit-dependency_scanning:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+license_scanning:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+secret_detection:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
