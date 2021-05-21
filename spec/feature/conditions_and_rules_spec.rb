@@ -18,30 +18,34 @@ RSpec.describe 'conditions and rules' do
     vehicle_policy.new(user, car, cache: cache)
   end
 
-  describe 'can?' do
-    using RSpec::Parameterized::TableSyntax
-
+  shared_context 'with vehicle policy scenarios' do
     where(:name, :age, :trusted_users, :license, :banned, :blood_alcohol, :can, :cannot) do
-      # full permissions
-      :owner  | 18 | []        | License.valid | false | 0.0   | [:drive_vehicle, :sell_vehicle] | []
-      # drive only
-      :driver | 18 | [:driver] | License.valid | false | 0.0   | [:drive_vehicle] | [:sell_vehicle]
-      :driver | 18 | [:driver] | License.valid | false | 0.001 | [:drive_vehicle] | [:sell_vehicle]
-      # sell-only
-      :owner | 17 | [:driver] | License.valid   | false | 0.0   | [:sell_vehicle] | [:drive_vehicle]
-      :owner | 18 | [:driver] | License.valid   | false | 0.2   | [:sell_vehicle] | [:drive_vehicle]
-      :owner | 18 | [:driver] | License.expired | false | 0.0   | [:sell_vehicle] | [:drive_vehicle]
-      :owner | 18 | [:driver] | nil             | false | 0.0   | [:sell_vehicle] | [:drive_vehicle]
-      :owner | 18 | [:driver] | License.valid   | true  | 0.0   | [:sell_vehicle] | [:drive_vehicle]
-      :owner | 18 | [:driver] | License.valid   | true  | 0.001 | [:sell_vehicle] | [:drive_vehicle]
-      # no permissions
-      :driver | 17 | [:driver] | License.valid   | false | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | []        | License.valid   | false | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | [:driver] | License.valid   | false | 0.2   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | [:driver] | License.expired | false | 0.2   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | [:driver] | nil             | false | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
-      :driver | 18 | [:driver] | License.valid   | true  | 0.0   | [] | [:drive_vehicle, :sell_vehicle]
+      [
+        # full permissions
+        [:owner, 18, [], License.valid, false, 0.0, [:drive_vehicle, :sell_vehicle], []],
+        # drive only
+        [:driver, 18, [:driver], License.valid, false, 0.0, [:drive_vehicle], [:sell_vehicle]],
+        [:driver, 18, [:driver], License.valid, false, 0.001, [:drive_vehicle], [:sell_vehicle]],
+        # sell-only
+        [:owner, 17, [:driver], License.valid, false, 0.0, [:sell_vehicle], [:drive_vehicle]],
+        [:owner, 18, [:driver], License.valid, false, 0.2, [:sell_vehicle], [:drive_vehicle]],
+        [:owner, 18, [:driver], License.expired, false, 0.0, [:sell_vehicle], [:drive_vehicle]],
+        [:owner, 18, [:driver], nil, false, 0.0, [:sell_vehicle], [:drive_vehicle]],
+        [:owner, 18, [:driver], nil, true, 0.0, [:sell_vehicle], [:drive_vehicle]],
+        [:owner, 18, [:driver], nil, true, 0.001, [:sell_vehicle], [:drive_vehicle]],
+        # no permissions
+        [:driver, 17, [:driver], License.valid, false, 0.0, [], [:drive_vehicle, :sell_vehicle]],
+        [:driver, 18, [], License.valid, false, 0.0, [], [:drive_vehicle, :sell_vehicle]],
+        [:driver, 18, [:driver], License.valid, false, 0.2, [], [:drive_vehicle, :sell_vehicle]],
+        [:driver, 18, [:driver], License.expired, false, 0.2, [], [:drive_vehicle, :sell_vehicle]],
+        [:driver, 18, [:driver], nil, false, 0.0, [], [:drive_vehicle, :sell_vehicle]],
+        [:driver, 18, [:driver], License.valid, true, 0.0, [], [:drive_vehicle, :sell_vehicle]]
+      ]
     end
+  end
+
+  describe 'the Vehicle policy' do
+    include_context 'with vehicle policy scenarios'
 
     with_them do
       specify do
@@ -85,30 +89,8 @@ RSpec.describe 'conditions and rules' do
       policy_definition.rule { can?(:drive_vehicle) }.prevent(:take_bus)
     end
 
-    describe 'can?' do
-      using RSpec::Parameterized::TableSyntax
-
-      where(:name, :age, :trusted_users, :license, :banned, :blood_alcohol) do
-        # full permissions
-        :owner  | 18 | []        | License.valid | false | 0.0
-        # drive only
-        :driver | 18 | [:driver] | License.valid | false | 0.0
-        :driver | 18 | [:driver] | License.valid | false | 0.001
-        # sell-only
-        :owner | 17 | [:driver] | License.valid   | false | 0.0
-        :owner | 18 | [:driver] | License.valid   | false | 0.2
-        :owner | 18 | [:driver] | License.expired | false | 0.0
-        :owner | 18 | [:driver] | nil             | false | 0.0
-        :owner | 18 | [:driver] | License.valid   | true  | 0.0
-        :owner | 18 | [:driver] | License.valid   | true  | 0.001
-        # no permissions
-        :driver | 17 | [:driver] | License.valid   | false | 0.0
-        :driver | 18 | []        | License.valid   | false | 0.0
-        :driver | 18 | [:driver] | License.valid   | false | 0.2
-        :driver | 18 | [:driver] | License.expired | false | 0.2
-        :driver | 18 | [:driver] | nil             | false | 0.0
-        :driver | 18 | [:driver] | License.valid   | true  | 0.0
-      end
+    describe 'allowed?' do
+      include_context 'with vehicle policy scenarios'
 
       with_them do
         specify do
