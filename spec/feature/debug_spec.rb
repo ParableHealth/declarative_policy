@@ -8,7 +8,7 @@ RSpec.describe 'debugging' do
     reg = Registration.new(country: country)
     car = Vehicle.new(owner: owner, registration: reg)
 
-    DeclarativePolicy.policy_for(user, car, cache: {})
+    vehicle_policy.new(user, car, cache: {})
   end
 
   describe '#debug' do

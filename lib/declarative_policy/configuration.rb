@@ -29,7 +29,7 @@ module DeclarativePolicy
     def policy_class(domain_class_name)
       return unless domain_class_name
 
-      @name_transformation.call(domain_class_name).constantize
+      Object.const_get(@name_transformation.call(domain_class_name))
     rescue NameError
       nil
     end

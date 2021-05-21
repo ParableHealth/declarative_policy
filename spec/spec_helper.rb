@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'declarative_policy'
 require 'pry-byebug'
 require 'rspec-parameterized'
+
+require 'declarative_policy'
 
 Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 

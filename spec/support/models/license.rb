@@ -6,14 +6,14 @@ class License
   end
 
   def valid?
-    Time.current <= @expiry
+    Time.now <= @expiry
   end
 
   def self.valid
-    new(expiry: 10.years.from_now)
+    new(expiry: (Time.now + 60 * 60 * 24 * 365 * 10))
   end
 
   def self.expired
-    new(expiry: 1.day.ago)
+    new(expiry: (Time.now - 60 * 60 * 24))
   end
 end

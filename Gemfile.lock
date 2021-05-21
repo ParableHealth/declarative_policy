@@ -184,7 +184,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (>= 6.0)
   benchmark
   declarative_policy!
   gitlab-dangerfiles (~> 1.1.0)

@@ -13,7 +13,7 @@ class User
   end
 
   def trusts?(user)
-    user.present? && @trusted.include?(user.name)
+    user && @trusted.include?(user.name)
   end
 
   def id

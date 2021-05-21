@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'active_support/dependencies'
-require 'active_support/core_ext'
-
 require_relative 'declarative_policy/cache'
 require_relative 'declarative_policy/condition'
 require_relative 'declarative_policy/delegate_dsl'
@@ -25,13 +22,7 @@ module DeclarativePolicy
       cache = opts[:cache] || {}
       key = Cache.policy_key(user, subject)
 
-      cache[key] ||=
-        # to avoid deadlocks in multi-threaded environment when
-        # autoloading is enabled, we allow concurrent loads,
-        # https://gitlab.com/gitlab-org/gitlab-foss/issues/48263
-        ActiveSupport::Dependencies.interlock.permit_concurrent_loads do
-          class_for(subject).new(user, subject, opts)
-        end
+      cache[key] ||= class_for(subject).new(user, subject, opts)
     end
 
     def class_for(subject)
@@ -70,16 +61,18 @@ module DeclarativePolicy
     end
 
     def class_for_class(subject_class)
-      return subject_class.declarative_policy_class.constantize if subject_class.respond_to?(:declarative_policy_class)
+      if subject_class.respond_to?(:declarative_policy_class)
+        Object.const_get(subject_class.declarative_policy_class)
+      else
+        subject_class.ancestors.each do |klass|
+          name = klass.name
+          klass = policy_class(name)
 
-      subject_class.ancestors.each do |klass|
-        name = klass.name
-        klass = policy_class(name)
+          return klass if klass
+        end
 
-        return klass if klass
+        nil
       end
-
-      nil
     end
 
     def policy_class(name)

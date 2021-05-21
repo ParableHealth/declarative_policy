@@ -33,6 +33,24 @@ module DeclarativePolicy
       end
     end
 
+    class Options
+      def initialize
+        @hash = {}
+      end
+
+      def []=(key, value)
+        @hash[key.to_sym] = value
+      end
+
+      def [](key)
+        @hash[key.to_sym]
+      end
+
+      def to_h
+        @hash
+      end
+    end
+
     class << self
       # The `own_ability_map` vs `ability_map` distinction is used so that
       # the data structure is properly inherited - with subclasses recursively
@@ -146,29 +164,26 @@ module DeclarativePolicy
 
       # A hash in which to store calls to `desc` and `with_scope`, etc.
       def last_options
-        @last_options ||= {}.with_indifferent_access
+        @last_options ||= Options.new
       end
 
-      # retrieve and zero out the previously set options (used in .condition)
-      def last_options!
-        last_options.tap { @last_options = nil }
+      def with_options(opts = {})
+        last_options.to_h.merge!(opts.to_h)
       end
 
       # Declare a description for the following condition. Currently unused,
       # but opens the potential for explaining to users why they were or were
       # not able to do something.
       def desc(description)
-        last_options[:description] = description
+        with_options description: description
       end
 
-      def with_options(opts = {})
-        last_options.merge!(opts)
-      end
-
+      # Declare a scope for the following condition.
       def with_scope(scope)
         with_options scope: scope
       end
 
+      # Declare a score for the following condition.
       def with_score(score)
         with_options score: score
       end
@@ -178,10 +193,7 @@ module DeclarativePolicy
       def condition(name, opts = {}, &value)
         name = name.to_sym
 
-        opts = last_options!.merge(opts)
-        opts[:context_key] ||= self.name
-
-        condition = Condition.new(name, opts, &value)
+        condition = Condition.new(name, condition_options(name, opts), &value)
 
         own_conditions[name] = condition
 
@@ -205,6 +217,14 @@ module DeclarativePolicy
       # so that they can be combined into every decision made.
       def prevent_all_when(rule)
         own_global_actions << [:prevent, rule]
+      end
+
+      private
+
+      # retrieve and zero out the previously set options (used in .condition)
+      def condition_options(name, opts)
+        opts[:context_key] ||= name
+        with_options(opts).tap { @last_options = nil }
       end
     end
 
@@ -254,16 +274,23 @@ module DeclarativePolicy
     condition(:default, scope: :global, score: 0) { true }
 
     def repr
-      subject_repr =
-        if @subject.respond_to?(:id)
-          "#{@subject.class.name}/#{@subject.id}"
-        else
-          @subject.inspect
-        end
+      "(#{identify_user} : #{identify_subject})"
+    end
 
-      user_repr = @user.try(:to_reference) || '<anonymous>'
+    def identify_user
+      return '<anonymous>' unless @user
 
-      "(#{user_repr} : #{subject_repr})"
+      @user.to_reference
+    rescue NoMethodError
+      "<#{@user.class}: #{@user.object_id}>"
+    end
+
+    def identify_subject
+      if @subject.respond_to?(:id)
+        "#{@subject.class.name}/#{@subject.id}"
+      else
+        @subject.inspect
+      end
     end
 
     def inspect

@@ -15,7 +15,7 @@ RSpec.describe 'conditions and rules' do
   let(:cache) { {} }
 
   def policy
-    DeclarativePolicy.policy_for(user, car, cache: cache)
+    vehicle_policy.new(user, car, cache: cache)
   end
 
   describe 'can?' do
