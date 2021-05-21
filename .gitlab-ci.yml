@@ -32,6 +32,17 @@ rspec:
         - "2.7"
         - "3.0"
 
+rspec:jruby:
+  extends: .tests
+  image: "bitnami/jruby:latest"
+  before_script:
+    - >
+      sed -ibak -E 's/(gem.*(gitlab|byebug).*)/# \1/' Gemfile
+    - ruby -v  # Print out ruby version for debugging
+    - bundle install -j $(nproc) --path vendor  # Install dependencies into ./vendor/ruby
+  script:
+    - bundle exec rspec
+
 danger-review:
   extends: .tests
   needs: []
