@@ -6,7 +6,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :test do
-  gem 'rspec', '~> 3.0'
+  gem 'rspec', '~> 3.10'
   gem 'rspec-parameterized', require: false
   gem 'pry-byebug'
 end
