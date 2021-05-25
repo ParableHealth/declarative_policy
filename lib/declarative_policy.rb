@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'set'
 require_relative 'declarative_policy/cache'
 require_relative 'declarative_policy/condition'
 require_relative 'declarative_policy/delegate_dsl'
