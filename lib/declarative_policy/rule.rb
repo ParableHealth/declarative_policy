@@ -210,7 +210,7 @@ module DeclarativePolicy
         cached = cached_pass?(context)
         return cached unless cached.nil?
 
-        @rules.all? { |r| r.pass?(context) }
+        @rules.sort_by { |r| r.score(context) }.all? { |r| r.pass?(context) }
       end
 
       def cached_pass?(context)
@@ -240,7 +240,7 @@ module DeclarativePolicy
         cached = cached_pass?(context)
         return cached unless cached.nil?
 
-        @rules.any? { |r| r.pass?(context) }
+        @rules.sort_by { |r| r.score(context) }.any? { |r| r.pass?(context) }
       end
 
       def simplify
