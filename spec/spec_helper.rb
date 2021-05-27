@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'pry-byebug'
+require 'pry-byebug' if RUBY_ENGINE != 'jruby'
 require 'rspec-parameterized'
 
 require 'declarative_policy'

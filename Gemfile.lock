@@ -206,7 +206,7 @@ DEPENDENCIES
   gitlab-styles (~> 6.1.0)
   pry-byebug
   rake (~> 12.0)
-  rspec (~> 3.0)
+  rspec (~> 3.10)
   rspec-parameterized
   rubocop
 
