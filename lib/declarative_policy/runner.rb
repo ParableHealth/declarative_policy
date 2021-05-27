@@ -185,7 +185,7 @@ module DeclarativePolicy
         break if lowest_score.zero?
       end
 
-      [next_step, score]
+      [next_step, lowest_score]
     end
 
     # Formatter for debugging output.

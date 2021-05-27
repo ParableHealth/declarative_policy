@@ -2,6 +2,9 @@ inherit_gem:
   gitlab-styles:
     - rubocop-default.yml
 
+CodeReuse/ActiveRecord:
+  Enabled: false
+
 AllCops:
   TargetRubyVersion: 2.6
   NewCops: enable

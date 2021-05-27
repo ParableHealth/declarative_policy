@@ -1,11 +1,19 @@
 # frozen_string_literal: true
 
 class Country
-  attr_reader :name, :driving_laws
+  attr_reader :name, :driving_laws, :visa_waivers, :active_visas, :country_code, :banned_list
 
-  def initialize(name:, driving_laws:)
+  def initialize(name:, driving_laws: nil, code: nil, visa_waivers: [], active_visas: [], banned_list: [])
     @name = name
-    @driving_laws = driving_laws
+    @driving_laws = driving_laws || Laws.new(max_blood_alcohol: 0.01, minimum_age: 18)
+    @visa_waivers = visa_waivers
+    @active_visas = active_visas
+    @country_code = code || name.downcase[0..1].to_sym
+    @banned_list = []
+  end
+
+  def id
+    country_code
   end
 
   def self.strict
