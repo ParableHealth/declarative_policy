@@ -43,6 +43,16 @@ rspec:jruby:
   script:
     - bundle exec rspec
 
+rspec:truffleruby:
+  extends: .tests
+  image: "flavorjones/truffleruby:latest"
+  before_script:
+    - >
+    - ruby -v  # Print out ruby version for debugging
+    - bundle install -j $(nproc) --path vendor  # Install dependencies into ./vendor/ruby
+  script:
+    - bundle exec rspec
+
 danger-review:
   extends: .tests
   needs: []
