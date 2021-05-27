@@ -14,7 +14,7 @@ include:
       - vendor/ruby
   before_script:
     - ruby -v  # Print out ruby version for debugging
-    - bundle install -j $(nproc) --path vendor  # Install dependencies into ./vendor/ruby
+    - bundle install -j $(nproc) --path vendor/$RUBY_VERSION
 
 rubocop:
   extends: .tests
@@ -39,7 +39,7 @@ rspec:jruby:
     - >
       sed -ibak -E 's/(gem.*(gitlab|byebug).*)/# \1/' Gemfile
     - ruby -v  # Print out ruby version for debugging
-    - bundle install -j $(nproc) --path vendor  # Install dependencies into ./vendor/ruby
+    - bundle install -j $(nproc) --path vendor/jruby
   script:
     - bundle exec rspec
 
@@ -47,9 +47,8 @@ rspec:truffleruby:
   extends: .tests
   image: "flavorjones/truffleruby:latest"
   before_script:
-    - >
     - ruby -v  # Print out ruby version for debugging
-    - bundle install -j $(nproc) --path vendor  # Install dependencies into ./vendor/ruby
+    - bundle install -j $(nproc) --path vendor/truffleruby
   script:
     - bundle exec rspec
 
