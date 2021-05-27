@@ -74,7 +74,7 @@ condition(:owns) { @subject.owner == @user }
 condition(:has_access_to) { @subject.owner.trusts?(@user) }
 condition(:old_enough_to_drive) { @user.age >= laws.minimum_age }
 condition(:has_driving_license) { @user.driving_license&.valid? }
-condition(:intoxicated, score: 5) { @user.blood_alcohol < laws.max_blood_alcohol }
+condition(:intoxicated, score: 5) { @user.blood_alcohol > laws.max_blood_alcohol }
 condition(:has_access_to, score: 3) { @subject.owner.trusts?(@user) }
 ```
 

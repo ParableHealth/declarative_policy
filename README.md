@@ -63,7 +63,7 @@ class VehiclePolicy < DeclarativePolicy::Base
   # expensive rules can have 'score'. Higher scores are 'more expensive' to calculate
   condition(:owns, score: 0) { @subject.owner == @user }
   condition(:has_access_to, score: 3) { @subject.owner.trusts?(@user) }
-  condition(:intoxicated, score: 5) { @user.blood_alcohol < laws.max_blood_alcohol }
+  condition(:intoxicated, score: 5) { @user.blood_alcohol > laws.max_blood_alcohol }
   
   # conclusions we can draw:
   rule { owns }.enable :drive_vehicle

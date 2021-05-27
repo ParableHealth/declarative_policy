@@ -8,7 +8,7 @@ RSpec.shared_context 'with vehicle policy' do
       condition(:has_driving_license) { @user.driving_license&.valid? }
       condition(:owns, score: 0) { @subject.owner.name == @user.name }
       condition(:has_access_to, score: 3) { @subject.owner.trusts?(@user) }
-      condition(:intoxicated, score: 5) { @user.blood_alcohol >= laws.max_blood_alcohol }
+      condition(:intoxicated, score: 5) { @user.blood_alcohol > laws.max_blood_alcohol }
 
       # conclusions we can draw:
       rule { owns }.enable :drive_vehicle
