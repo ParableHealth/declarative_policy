@@ -190,14 +190,14 @@ module DeclarativePolicy
 
       # Declares a condition. It gets stored in `own_conditions`, and generates
       # a query method based on the condition's name.
-      def condition(name, opts = {}, &value)
-        name = name.to_sym
+      def condition(condition_name, opts = {}, &value)
+        condition_name = condition_name.to_sym
 
-        condition = Condition.new(name, condition_options(name, opts), &value)
+        condition = Condition.new(condition_name, condition_options(opts), &value)
 
-        own_conditions[name] = condition
+        own_conditions[condition_name] = condition
 
-        define_method(:"#{name}?") { condition(name).pass? }
+        define_method(:"#{condition_name}?") { condition(condition_name).pass? }
       end
 
       # These next three methods are mainly called from PolicyDsl,
@@ -222,8 +222,10 @@ module DeclarativePolicy
       private
 
       # retrieve and zero out the previously set options (used in .condition)
-      def condition_options(name, opts)
-        opts[:context_key] ||= name
+      def condition_options(opts)
+        # The context_key distinguishes two conditions of the same name.
+        # For anonymous classes, use object_id.
+        opts[:context_key] ||= (name || object_id)
         with_options(opts).tap { @last_options = nil }
       end
     end
