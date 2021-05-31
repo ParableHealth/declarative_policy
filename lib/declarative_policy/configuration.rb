@@ -7,6 +7,7 @@ module DeclarativePolicy
     def initialize
       @named_policies = {}
       @name_transformation = ->(name) { "#{name}Policy" }
+      @class_for = ->(name) { Object.const_get(name) }
     end
 
     def named_policy(name, policy = nil)
@@ -26,10 +27,15 @@ module DeclarativePolicy
       nil
     end
 
+    def class_for(&block)
+      @class_for = block
+      nil
+    end
+
     def policy_class(domain_class_name)
       return unless domain_class_name
 
-      Object.const_get(@name_transformation.call(domain_class_name))
+      @class_for.call((@name_transformation.call(domain_class_name)))
     rescue NameError
       nil
     end
