@@ -122,7 +122,7 @@ For more usage details, see the [documentation](docs/usage.md).
 
 ## Development
 
-After checking out the repository, run `bin/setup` to install dependencies.
+After checking out the repository, run `bundle install` to install dependencies.
 Then, run `rake spec` to run the tests. You can also run `bin/console` for an
 interactive prompt that will allow you to experiment.
 
