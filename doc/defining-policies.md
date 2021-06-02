@@ -108,8 +108,7 @@ Rules are conclusions we can draw based on the facts:
 rule { owns }.enable :drive_vehicle
 rule { has_access_to }.enable :drive_vehicle
 rule { ~old_enough_to_drive }.prevent :drive_vehicle
-rule { intoxicated }.prevent :drive_vehicle
-rule { ~has_driving_license }.prevent :drive_vehicle
+rule { intoxicated | ~has_driving_license }.prevent :drive_vehicle
 ```
 
 Rules are combined such that each ability must be enabled at least once, and not
@@ -129,6 +128,33 @@ Rule blocks do not have access to the internal state of the policy, and cannot
 access the `@user` or `@subject`, or any methods on the policy instance. You
 should not perform I/O in a rule. They exist solely to define the logical rules
 of implication and combination between conditions.
+
+The available operations inside a rule block are:
+
+- Bare words to refer to conditions in the policy, or on any delegate.
+  For example `owns`. This is equivalent to `cond(:owns)`, but as a matter of
+  general style, bare words are preferred.
+- `~` to negate any rule. For example `~owns`, or `~(intoxicated | banned)`.
+- `&` or `all?` to combine rules such that all must succeed. For example:
+  `old_enough_to_drive & has_driving_license` or `all?(old_enough_to_drive, has_driving_license)`.
+- `|` or `any?` to combine rules such that one must succeed. For example:
+  `intoxicated | banned` or `any?(intoxicated, banned)`.
+- `can?` to refer to the result of evaluating an ability. For example,
+  `can?(:sell_vehicle)`.
+- `delegate(:delegate_name, :condition_name)` to refer to a specific
+  condition on a named delegate. Use of this is rare, but can be used to
+  handle overrides. For example if a vehicle policy defines a delegate as
+  `delegate :registration`, then we could refer to that
+  as `rule { delegate(:registration, :valid) }`.
+
+Note: Be careful not to confuse `DeclarativePolicy::Base.condition` with
+`DeclarativePolicy::RuleDSL#cond`.
+
+- `condition` constructs a condition from a name and a block. For example:
+  `condition(:adult) { @subject.age >= country.age_of_majority }`.
+- `cond` constructs a rule which refers to a condition by name. For example:
+  `rule { cond(:adult) }.enable :vote`. Use of `cond` is rare - it is nicer to
+  use the bare word form: `rule { adult }.enable :vote`.
 
 ### Complex conditions
 
