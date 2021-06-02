@@ -285,9 +285,9 @@ module DeclarativePolicy
 
       def simplify
         case @rule
-        when And then Or.new(@rule.rules.map(&:negate)).simplify
-        when Or then And.new(@rule.rules.map(&:negate)).simplify
-        when Not then @rule.rule.simplify
+        when And then Or.new(@rule.rules.map(&:negate)).simplify # DeMorgan's laws
+        when Or then And.new(@rule.rules.map(&:negate)).simplify # DeMorgan's laws
+        when Not then @rule.rule.simplify # double negation
         else Not.new(@rule.simplify)
         end
       end
