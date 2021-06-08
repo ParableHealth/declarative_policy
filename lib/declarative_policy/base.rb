@@ -305,8 +305,7 @@ module DeclarativePolicy
     # at the ability level.
     def runner(ability)
       ability = ability.to_sym
-      @runners ||= {}
-      @runners[ability] ||=
+      runners[ability] ||=
         begin
           own_runner = Runner.new(own_steps(ability))
           if self.class.overrides.include?(ability)
@@ -316,6 +315,10 @@ module DeclarativePolicy
             delegated_runners.reduce(own_runner, &:merge_runner)
           end
         end
+    end
+
+    def runners
+      @runners ||= {}
     end
 
     # Helpers for caching. Used by ManifestCondition in performing condition

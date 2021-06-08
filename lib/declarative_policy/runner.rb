@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
+require 'set'
+
 module DeclarativePolicy
   class Runner
     class State
+      attr_reader :called_conditions
+
       def initialize
         @enabled = false
         @prevented = false
+        @called_conditions = Set.new
       end
 
       def enable!
@@ -26,6 +31,10 @@ module DeclarativePolicy
 
       def pass?
         !prevented? && enabled?
+      end
+
+      def register(manifest_condition)
+        @called_conditions << manifest_condition.cache_key
       end
     end
 
@@ -55,10 +64,19 @@ module DeclarativePolicy
       Runner.new(@steps + other.steps)
     end
 
+    def dependencies
+      return Set.new unless @state
+
+      @state.called_conditions
+    end
+
     # The main entry point, called for making an ability decision.
     # See #run and DeclarativePolicy::Base#can?
     def pass?
       run unless cached?
+
+      parent_state = Thread.current[:declarative_policy_current_runner_state]
+      parent_state&.called_conditions&.merge(@state.called_conditions)
 
       @state.pass?
     end
@@ -70,6 +88,16 @@ module DeclarativePolicy
 
     private
 
+    def with_state(&block)
+      @state = State.new
+      old_runner_state = Thread.current[:declarative_policy_current_runner_state]
+      Thread.current[:declarative_policy_current_runner_state] = @state
+
+      yield
+    ensure
+      Thread.current[:declarative_policy_current_runner_state] = old_runner_state
+    end
+
     def flatten_steps!
       @steps = @steps.flat_map { |s| s.flattened(@steps) }
     end
@@ -78,32 +106,32 @@ module DeclarativePolicy
     # It relies on #steps_by_score for the main loop, and updates @state
     # with the result of the step.
     def run(debug = nil)
-      @state = State.new
+      with_state do
+        steps_by_score(!!debug) do |step, score|
+          break if !debug && @state.prevented?
 
-      steps_by_score(!!debug) do |step, score|
-        break if !debug && @state.prevented?
+          passed = nil
+          case step.action
+          when :enable
+            # we only check :enable actions if they have a chance of
+            # changing the outcome - if no other rule has enabled or
+            # prevented.
+            unless @state.enabled? || @state.prevented?
+              passed = step.pass?
+              @state.enable! if passed
+            end
+          when :prevent
+            # we only check :prevent actions if the state hasn't already
+            # been prevented.
+            unless @state.prevented?
+              passed = step.pass?
+              @state.prevent! if passed
+            end
+          else raise "invalid action #{step.action.inspect}"
+          end
 
-        passed = nil
-        case step.action
-        when :enable
-          # we only check :enable actions if they have a chance of
-          # changing the outcome - if no other rule has enabled or
-          # prevented.
-          unless @state.enabled? || @state.prevented?
-            passed = step.pass?
-            @state.enable! if passed
-          end
-        when :prevent
-          # we only check :prevent actions if the state hasn't already
-          # been prevented.
-          unless @state.prevented?
-            passed = step.pass?
-            @state.prevent! if passed
-          end
-        else raise "invalid action #{step.action.inspect}"
+          debug << inspect_step(step, score, passed) if debug
         end
-
-        debug << inspect_step(step, score, passed) if debug
       end
 
       @state

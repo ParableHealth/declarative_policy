@@ -40,6 +40,8 @@ module DeclarativePolicy
     # the context's cache here so that we can share in the global
     # cache (often RequestStore or similar).
     def pass?
+      Thread.current[:declarative_policy_current_runner_state]&.register(self)
+
       @context.cache(cache_key) { @condition.compute(@context) }
     end
 
@@ -76,8 +78,6 @@ module DeclarativePolicy
       8
     end
 
-    private
-
     # This method controls the caching for the condition. This is where
     # the condition(scope: ...) option comes into play. Notice that
     # depending on the scope, we may cache only by the user or only by
@@ -92,6 +92,8 @@ module DeclarativePolicy
         else raise 'invalid scope'
         end
     end
+
+    private
 
     def user_key
       Cache.user_key(@context.user)

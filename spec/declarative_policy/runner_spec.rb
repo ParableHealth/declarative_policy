@@ -89,6 +89,43 @@ RSpec.describe DeclarativePolicy::Runner do
     expect(runner).to be_pass
   end
 
+  describe '#dependencies' do
+    let(:policy) do
+      Class.new(DeclarativePolicy::Base) do
+        condition(:hot) { @subject > 30 }
+        condition(:cold) { @subject < 15 }
+        condition(:works_in_office) { @user&.works_in_office? }
+
+        rule { ~hot & ~cold }.enable :enjoy_weather
+        rule { ~cold }.enable :wear_shorts
+        rule { works_in_office }.prevent :wear_shorts
+        # tests nested runners
+        rule { can?(:wear_shorts) }.enable :wear_tshirt
+      end
+    end
+
+    it 'tracks dependencies, cached or fresh' do
+      p = policy.new(nil, 20)
+
+      expect(p).to be_allowed(:enjoy_weather)
+      expect(p).to be_allowed(:wear_shorts)
+      expect(p).to be_allowed(:wear_tshirt)
+
+      expect(p.runner(:enjoy_weather).dependencies).to contain_exactly(/hot/, /cold/)
+      expect(p.runner(:wear_shorts).dependencies).to contain_exactly(/cold/, /works_in_office/)
+      expect(p.runner(:wear_tshirt).dependencies).to contain_exactly(/cold/, /works_in_office/)
+    end
+
+    it 'only tracks evaluated dependencies' do
+      p = policy.new(nil, 31)
+
+      expect(p).not_to be_allowed(:enjoy_weather)
+
+      expect(p.runner(:enjoy_weather).dependencies).to include(/hot/)
+      expect(p.runner(:enjoy_weather).dependencies).not_to include(/cold/)
+    end
+  end
+
   def make_runner(*steps)
     steps.each do |step|
       allow(step).to receive(:flattened).and_return([step])
