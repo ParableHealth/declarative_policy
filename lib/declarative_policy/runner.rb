@@ -53,6 +53,11 @@ module DeclarativePolicy
       !!@state
     end
 
+    # Delete the cached state - allowing this runner to be re-used if the facts have changed.
+    def uncache!
+      @state = nil
+    end
+
     # used by Rule::Ability. See #steps_by_score
     def score
       return 0 if cached?

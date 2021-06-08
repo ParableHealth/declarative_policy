@@ -6,6 +6,22 @@ require 'rspec-parameterized'
 # will cause examples to fail. Only steps we anticipate being called have
 # `pass?` defined for them. All other steps are expected not to be called.
 RSpec.describe DeclarativePolicy::Runner do
+  describe 'uncache!' do
+    it 'allows the runner to run again' do
+      step = double('Step', score: 1, action: :enable, enable?: true)
+
+      expect(step).to receive(:pass?).twice.and_return(true)
+
+      runner = make_runner(step)
+
+      runner.pass?
+      runner.pass?
+      runner.uncache!
+      runner.pass?
+      runner.pass?
+    end
+  end
+
   it 'short-circuits if there are no enabling steps' do
     prevent_1 = double('Step', score: 1, enable?: false)
     prevent_2 = double('Step', score: 1, enable?: false)
