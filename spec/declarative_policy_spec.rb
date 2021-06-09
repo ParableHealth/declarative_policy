@@ -116,4 +116,69 @@ RSpec.describe DeclarativePolicy do
       end
     end
   end
+
+  describe '.invalidate' do
+    let(:user) { User.new(name: 'Filbert', driving_license: License.valid, trusted: ['Finnigan']) }
+    let(:other_user) { User.new(name: 'Finnigan') }
+
+    let(:car) do
+      country = Country.moderate
+      reg = Registration.new(country: country)
+      Vehicle.new(owner: user, registration: reg)
+    end
+
+    let(:cache) { {} }
+
+    let(:keys) do
+      [
+        '/dp/condition/ReadmePolicy/has_driving_license/Filbert',
+        '/dp/condition/ReadmePolicy/has_driving_license/Finnigan'
+      ]
+    end
+
+    def filbert_can_drive
+      ReadmePolicy.new(user, car, cache: cache).allowed?(:drive_vehicle)
+    end
+
+    def finn_can_drive
+      ReadmePolicy.new(other_user, car, cache: cache).allowed?(:drive_vehicle)
+    end
+
+    def swap_licenses!
+      other_user.driving_license = user.driving_license # invalidates policy
+      user.driving_license = nil # invalidates policy
+    end
+
+    it 'is possible to invalidate a runner, and clear dirty state' do
+      # verifies that we benefit from caching for other conditions
+      expect(user).to receive(:trusts?).with(other_user).once.and_call_original
+
+      expect(filbert_can_drive).to be true
+      expect(finn_can_drive).to be false
+
+      swap_licenses!
+
+      # state is still stale
+      expect(filbert_can_drive).to be true
+      expect(finn_can_drive).to be false
+
+      expect { described_class.invalidate(cache, keys.take(1)) }
+        .to change(cache, :size).by(-1)
+
+      expect(filbert_can_drive).to be false # state is now good!
+      expect(finn_can_drive).to be false # but this is still stale
+
+      expect { described_class.invalidate(cache, keys.drop(1)) }
+        .to change { finn_can_drive }.from(false).to(true)
+    end
+
+    it 'can invalidate several keys at once' do
+      expect do
+        swap_licenses!
+        described_class.invalidate(cache, keys)
+      end
+        .to change { filbert_can_drive }.from(true).to(false)
+        .and change { finn_can_drive }.from(false).to(true)
+    end
+  end
 end

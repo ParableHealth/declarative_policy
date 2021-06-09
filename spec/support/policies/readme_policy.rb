@@ -3,7 +3,7 @@
 # See README.md
 class ReadmePolicy < DeclarativePolicy::Base
   condition(:old_enough_to_drive) { @user.age >= laws.minimum_age }
-  condition(:has_driving_license) { @user.driving_license&.valid? }
+  condition(:has_driving_license, scope: :user) { @user.driving_license&.valid? }
   condition(:owns, score: 0) { @subject.owner.name == @user.name }
   condition(:has_access_to, score: 3) { @subject.owner.trusts?(@user) }
   condition(:intoxicated, score: 5) { @user.blood_alcohol > laws.max_blood_alcohol }

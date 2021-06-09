@@ -26,6 +26,26 @@ module DeclarativePolicy
       cache[key] ||= class_for(subject).new(user, subject, opts)
     end
 
+    # Find the list of runners with now invalidated keys, and invalidate the runners
+    def invalidate(cache, invalidated_keys)
+      return unless cache&.any?
+      return unless invalidated_keys&.any?
+
+      keys = invalidated_keys.to_set
+
+      policies = cache.select { |k, _| k.is_a?(String) && k.start_with?('/dp/policy/') }
+
+      policies.each_value do |policy|
+        policy.runners.each do |runner|
+          runner.uncache! if keys.intersect?(runner.dependencies)
+        end
+      end
+
+      invalidated_keys.each { |k| cache.delete(k) }
+
+      nil
+    end
+
     def class_for(subject)
       return configuration.nil_policy if subject.nil?
       return configuration.named_policy(subject) if subject.is_a?(Symbol)

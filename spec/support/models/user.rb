@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class User
-  attr_reader :name, :age, :driving_license, :blood_alcohol
+  attr_reader :name, :age, :blood_alcohol
+  attr_accessor :driving_license
 
   def initialize(name:, age: 30, driving_license: nil, blood_alcohol: 0.0, trusted: [], citizenships: [])
     @name = name
@@ -17,6 +18,8 @@ class User
   end
 
   def id
+    return @name if @citizenships.empty?
+
     @citizenships.map { |c| "#{c.code}:#{c.number}" }.join(";")
   end
 
