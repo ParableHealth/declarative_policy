@@ -54,9 +54,9 @@ RSpec.describe DeclarativePolicy::RuleDsl do
     end
 
     it 'refers to conditions by name' do
-      expect(low_range.map { temperature(_1) }).to all(be_disallowed(:steam))
-      expect(mid_range.map { temperature(_1) }).to all(be_disallowed(:steam))
-      expect(high_range.map { temperature(_1) }).to all(be_allowed(:steam))
+      expect(low_range.map {  |t| temperature(t) }).to all(be_disallowed(:steam))
+      expect(mid_range.map {  |t| temperature(t) }).to all(be_disallowed(:steam))
+      expect(high_range.map { |t| temperature(t) }).to all(be_allowed(:steam))
     end
   end
 
@@ -103,9 +103,9 @@ RSpec.describe DeclarativePolicy::RuleDsl do
     end
 
     it 'refers to conditions by name' do
-      expect(low_range.map { temperature(_1) }).to all(be_disallowed(:steam))
-      expect(mid_range.map { temperature(_1) }).to all(be_disallowed(:steam))
-      expect(high_range.map { temperature(_1) }).to all(be_allowed(:steam))
+      expect(low_range.map  { |t| temperature(t) }).to all(be_disallowed(:steam))
+      expect(mid_range.map  { |t| temperature(t) }).to all(be_disallowed(:steam))
+      expect(high_range.map { |t| temperature(t) }).to all(be_allowed(:steam))
     end
   end
 
@@ -117,9 +117,9 @@ RSpec.describe DeclarativePolicy::RuleDsl do
     end
 
     it 'requires one condition' do
-      expect(low_range.map { temperature(_1) }).to all(be_allowed(:unsurvivable))
-      expect(mid_range.map { temperature(_1) }).to all(be_disallowed(:unsurvivable))
-      expect(high_range.map { temperature(_1) }).to all(be_allowed(:unsurvivable))
+      expect(low_range.map  { |t| temperature(t) }).to all(be_allowed(:unsurvivable))
+      expect(mid_range.map  { |t| temperature(t) }).to all(be_disallowed(:unsurvivable))
+      expect(high_range.map { |t| temperature(t) }).to all(be_allowed(:unsurvivable))
     end
   end
 
@@ -131,9 +131,9 @@ RSpec.describe DeclarativePolicy::RuleDsl do
     end
 
     it 'requires one condition' do
-      expect(low_range.map { temperature(_1) }).to all(be_allowed(:unsurvivable))
-      expect(mid_range.map { temperature(_1) }).to all(be_disallowed(:unsurvivable))
-      expect(high_range.map { temperature(_1) }).to all(be_allowed(:unsurvivable))
+      expect(low_range.map { |t| temperature(t) }).to all(be_allowed(:unsurvivable))
+      expect(mid_range.map { |t| temperature(t) }).to all(be_disallowed(:unsurvivable))
+      expect(high_range.map { |t| temperature(t) }).to all(be_allowed(:unsurvivable))
     end
   end
 
@@ -145,9 +145,9 @@ RSpec.describe DeclarativePolicy::RuleDsl do
     end
 
     it 'requires neither condition' do
-      expect(low_range.map { temperature(_1) }).to all(be_disallowed(:survivable))
-      expect(mid_range.map { temperature(_1) }).to all(be_allowed(:survivable))
-      expect(high_range.map { temperature(_1) }).to all(be_disallowed(:survivable))
+      expect(low_range.map {  |t| temperature(t) }).to all(be_disallowed(:survivable))
+      expect(mid_range.map {  |t| temperature(t) }).to all(be_allowed(:survivable))
+      expect(high_range.map { |t| temperature(t) }).to all(be_disallowed(:survivable))
     end
   end
 
@@ -161,8 +161,8 @@ RSpec.describe DeclarativePolicy::RuleDsl do
     end
 
     it 'requires both conditions' do
-      expect(low_range.map { temperature(_1) }).to all(be_disallowed(:liquid_water, :even_liquid))
-      expect(high_range.map { temperature(_1) }).to all(be_disallowed(:liquid_water, :even_liquid))
+      expect(low_range.map {  |t| temperature(t) }).to all(be_disallowed(:liquid_water, :even_liquid))
+      expect(high_range.map { |t| temperature(t) }).to all(be_disallowed(:liquid_water, :even_liquid))
 
       expect(temperature(1)).to be_allowed(:liquid_water)
       expect(temperature(1)).not_to be_allowed(:even_liquid)
@@ -187,8 +187,8 @@ RSpec.describe DeclarativePolicy::RuleDsl do
     end
 
     it 'requires both conditions' do
-      expect(low_range.map { temperature(_1) }).to all(be_disallowed(:liquid_water, :even_liquid))
-      expect(high_range.map { temperature(_1) }).to all(be_disallowed(:liquid_water, :even_liquid))
+      expect(low_range.map {  |t| temperature(t) }).to all(be_disallowed(:liquid_water, :even_liquid))
+      expect(high_range.map { |t| temperature(t) }).to all(be_disallowed(:liquid_water, :even_liquid))
 
       expect(temperature(1)).to be_allowed(:liquid_water)
       expect(temperature(1)).not_to be_allowed(:even_liquid)
