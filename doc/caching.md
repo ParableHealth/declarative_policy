@@ -10,9 +10,24 @@ designing good policies, using them effectively.
 
 ## What is cached?
 
+If a policy is instantiated with a cache, then the following things will be
+stored in it:
+
+- Policy instances (there will only ever be one policy per `user/subject` pair
+  for the lifetime of the cache).
+- Condition results
+
+The correctness of these cached values depends on the correctness of the
+cache-keys. We assume the objects in your domain have a `#id` method that
+fully captures the notion of object identity. See [Cache keys](#cache-keys) for
+details. All cache keys begin with `"/dp/"`.
+
+Policies themselves cache the results of the abilities they compute.
+
 Policies distinguish between facts based on the type of the fact:
 
 - Boolean facts: implemented with `condition`.
+- Abilities: implemented with `rule` blocks.
 - Non-boolean facts: implemented by policy instance methods.
 
 For example, consider a policy for countries:
@@ -256,3 +271,32 @@ policy subjects should implement `#id` for this reason. `ActiveRecord` models
 with an `id` primary ID attribute do not need any extra configuration.
 
 Please see: [`DeclarativePolicy::Cache`](https://gitlab.com/gitlab-org/declarative-policy/blob/master/lib/declarative_policy/cache.rb).
+
+## Cache invalidation
+
+Generally, cache invalidation is best avoided. It is very hard to get right, and
+relying on it opens you up to subtle but pernicious bugs that are hard to
+reproduce and debug.
+
+The best strategy is to run all permission checks upfront, before mutating any
+state that might change a permission computation. For instance, if you want to
+make a user an administrator, then check for permission **before** assigning
+administrator privileges.
+
+However, it isn't always possible to avoid needing to mark certain parts of the
+cached state as dirty (in need of re-computation). If this is needed, then you
+can call the `DeclarativePolicy.invalidate(cache, keys)` method. This takes an
+enumerable of dirty keys, and:
+
+- removes the cached condition results from the cache
+- marks the abilities that depend on those conditions as dirty, and in need of
+  re-computation.
+
+The responsibility for determining which cache-keys are dirty falls on the
+client. You could, for example, do this by observing which keys are added to the
+cache (knowing that condition keys all start with `"/dp/condition/"`), or by
+scanning the cache for keys that match a heuristic.
+
+This method is the only place where the `#delete` method is called on the cache.
+If you do not call `.invalidate`, there is no need for the cache to implement
+`#delete`.
