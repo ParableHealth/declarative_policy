@@ -26,8 +26,8 @@ RSpec.describe 'debugging' do
           start_with("+ [3] enable when has_access_to"),
           start_with("- [3] prevent when banned"),
           start_with("- [4] prevent when intoxicated"),
-          start_with("- [14] prevent when ~old_enough_to_drive"),
-          start_with("- [14] prevent when ~has_driving_license")
+          start_with("- [7] prevent when ~has_driving_license"),
+          start_with("- [14] prevent when ~old_enough_to_drive")
         ]
       end
     end
@@ -45,8 +45,8 @@ RSpec.describe 'debugging' do
           start_with("- [3] enable when has_access_to"),
           start_with("  [3] prevent when banned"),
           start_with("  [4] prevent when intoxicated"),
-          start_with("  [14] prevent when ~old_enough_to_drive"),
-          start_with("  [14] prevent when ~has_driving_license")
+          start_with("  [7] prevent when ~has_driving_license"),
+          start_with("  [14] prevent when ~old_enough_to_drive")
         ]
       end
     end
@@ -63,8 +63,8 @@ RSpec.describe 'debugging' do
           start_with("+ [3] enable when has_access_to"),
           start_with("- [3] prevent when banned"),
           start_with("+ [4] prevent when intoxicated"),
-          start_with("  [14] prevent when ~old_enough_to_drive"),
-          start_with("  [14] prevent when ~has_driving_license")
+          start_with("  [7] prevent when ~has_driving_license"),
+          start_with("  [14] prevent when ~old_enough_to_drive")
         ]
       end
     end
