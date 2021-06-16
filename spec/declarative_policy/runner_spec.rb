@@ -92,15 +92,18 @@ RSpec.describe DeclarativePolicy::Runner do
   describe '#dependencies' do
     let(:policy) do
       Class.new(DeclarativePolicy::Base) do
-        condition(:hot) { @subject > 30 }
-        condition(:cold) { @subject < 15 }
-        condition(:works_in_office) { @user&.works_in_office? }
+        condition(:hot, score: 1) { @subject > 30 }
+        condition(:cold, score: 2) { @subject < 15 }
+        condition(:works_in_office, score: 3) { @user&.works_in_office? }
 
         rule { ~hot & ~cold }.enable :enjoy_weather
         rule { ~cold }.enable :wear_shorts
         rule { works_in_office }.prevent :wear_shorts
         # tests nested runners
         rule { can?(:wear_shorts) }.enable :wear_tshirt
+
+        # Tests doubly-nested runners
+        rule { can?(:enjoy_weather) & can?(:wear_tshirt) }.enable :bonza
       end
     end
 
@@ -110,10 +113,12 @@ RSpec.describe DeclarativePolicy::Runner do
       expect(p).to be_allowed(:enjoy_weather)
       expect(p).to be_allowed(:wear_shorts)
       expect(p).to be_allowed(:wear_tshirt)
+      expect(p).to be_allowed(:bonza)
 
       expect(p.runner(:enjoy_weather).dependencies).to contain_exactly(/hot/, /cold/)
       expect(p.runner(:wear_shorts).dependencies).to contain_exactly(/cold/, /works_in_office/)
       expect(p.runner(:wear_tshirt).dependencies).to contain_exactly(/cold/, /works_in_office/)
+      expect(p.runner(:bonza).dependencies).to contain_exactly(/hot/, /cold/, /works_in_office/)
     end
 
     it 'only tracks evaluated dependencies' do
