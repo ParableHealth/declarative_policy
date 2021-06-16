@@ -33,7 +33,7 @@ rspec:
         - "3.0"
 
 rspec:jruby:
-  extends: .tests
+  stage: test
   image: "bitnami/jruby:latest"
   before_script:
     - >
@@ -44,7 +44,7 @@ rspec:jruby:
     - bundle exec rspec
 
 rspec:truffleruby:
-  extends: .tests
+  stage: test
   image: "flavorjones/truffleruby:latest"
   before_script:
     - ruby -v  # Print out ruby version for debugging
