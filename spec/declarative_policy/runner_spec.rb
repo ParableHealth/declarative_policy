@@ -126,8 +126,7 @@ RSpec.describe DeclarativePolicy::Runner do
 
       expect(p).not_to be_allowed(:enjoy_weather)
 
-      expect(p.runner(:enjoy_weather).dependencies).to include(/hot/)
-      expect(p.runner(:enjoy_weather).dependencies).not_to include(/cold/)
+      expect(p.runner(:enjoy_weather).dependencies).to contain_exactly(/hot/)
     end
   end
 
