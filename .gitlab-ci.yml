@@ -14,18 +14,21 @@ include:
       - vendor/ruby
   before_script:
     - ruby -v  # Print out ruby version for debugging
-    - bundle install -j $(nproc) --path vendor/$RUBY_VERSION
+    - bundle install -j $(nproc) --path vendor/ruby/$RUBY_VERSION
 
 rubocop:
   extends: .tests
   script:
     - bundle exec rubocop
 
-rspec:
+.rspec:
   extends: .tests
-  image: "ruby:$RUBY_VERSION"
   script:
     - bundle exec rspec
+
+rspec:mri:
+  extends: .rspec
+  image: "ruby:$RUBY_VERSION"
   parallel:
     matrix:
       - RUBY_VERSION:
@@ -33,24 +36,16 @@ rspec:
         - "3.0"
 
 rspec:jruby:
-  stage: test
+  extends: .rspec
   image: "bitnami/jruby:latest"
-  before_script:
-    - >
-      sed -ibak -E 's/(gem.*(gitlab|byebug).*)/# \1/' Gemfile
-    - ruby -v  # Print out ruby version for debugging
-    - bundle install -j $(nproc) --path vendor/jruby
-  script:
-    - bundle exec rspec
+  variables:
+    RUBY_VERSION: jruby
 
 rspec:truffleruby:
-  stage: test
+  extends: .rspec
   image: "flavorjones/truffleruby:latest"
-  before_script:
-    - ruby -v  # Print out ruby version for debugging
-    - bundle install -j $(nproc) --path vendor/truffleruby
-  script:
-    - bundle exec rspec
+  variables:
+    RUBY_VERSION: truffleruby
 
 danger-review:
   extends: .tests
