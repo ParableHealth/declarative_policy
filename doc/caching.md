@@ -8,7 +8,7 @@ In order to make this performant, the library transparently caches repeated
 observations of conditions. Understanding how caching works is useful for
 designing good policies, using them effectively.
 
-## What is cached?
+## What is cached?
 
 If a policy is instantiated with a cache, then the following things will be
 stored in it:
@@ -37,13 +37,13 @@ class CountryPolicy < DeclarativePolicy::Base
   condition(:citizen) { @user.citizen_of?(country.country_code) }
   condition(:eu_citizen, scope: :user) { @user.citizen_of?(*Unions::EU) }
   condition(:eu_member, scope: :subject) { Unions::EU.include?(country.country_code) }
-  
+
   condition(:has_visa_waiver)    { country.visa_waivers.any? { |c| @user.citizen_of?(c) } }
   condition(:permanent_resident) { visa_category == :permanent }
   condition(:has_work_visa)      { visa_category == :work }
   condition(:has_current_visa)   { has_visa_waiver? || current_visa.present? }
   condition(:has_business_visa)  { has_visa_waiver? || has_work_visa? || visa_category == :business }
-  
+
   condition(:full_rights, score: 20) { citizen? || permanent_resident? }
   condition(:banned) { country.banned_list.include?(@user) }
 
@@ -61,7 +61,7 @@ class CountryPolicy < DeclarativePolicy::Base
 
     @current_visa = country.active_visas.find_by(applicant: @user)
   end
-  
+
   def visa_category
     current_visa&.category
   end
@@ -159,7 +159,7 @@ check multiple times (or even compute related abilities, such as
 allows developers to reason declaratively, and add permission checks where
 needed, without worrying about performance.
 
-## Cache sharing: scopes
+## Cache sharing: scopes
 
 Not all conditions are equally specific. The condition `citizen` refers to
 both the user and the country, and so can only be used when checking both the
@@ -174,7 +174,7 @@ For example, above we have two conditions: `eu_citizen` and `eu_member`:
 ```
 
 `eu_citizen` refers only to the user, and `eu_member` refers only to the
-country. 
+country.
 
 If we have a user that wants to enter multiple countries on a grand European
 tour, we could check this with:
@@ -201,7 +201,7 @@ The last scope is `:global`, used when the condition is universally true:
 
 ```ruby
   condition(:earth_destroyed_by_meteor, scope: global) { !Planet::Earth.exists? }
-  
+
   rule { earth_destroyed_by_meteor }.prevent_all
 ```
 
