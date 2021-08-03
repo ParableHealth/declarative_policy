@@ -117,6 +117,41 @@ RSpec.describe DeclarativePolicy do
     end
   end
 
+  describe '.policy_for' do
+    before do
+      stub_const('Human', Class.new { attr_accessor :id })
+      stub_const('Bot', Class.new { attr_accessor :id })
+      stub_const('Foo', Class.new)
+      stub_const('FooPolicy', Class.new(DeclarativePolicy::Base))
+    end
+
+    context 'when the policy has been instantiated before' do
+      it 'returns the same instance' do
+        cache = {}
+        user = Human.new
+        user.id = 100
+        object = Foo.new
+
+        expect(described_class.policy_for(user, object, cache: cache))
+          .to be(described_class.policy_for(user, object, cache: cache))
+      end
+    end
+
+    context 'when actors have different types, but the same ID' do
+      it 'returns different instances' do
+        cache = {}
+        user = Human.new
+        user.id = 100
+        bot = Bot.new
+        bot.id = 100
+        object = Foo.new
+
+        expect(described_class.policy_for(user, object, cache: cache))
+          .not_to be(described_class.policy_for(bot, object, cache: cache))
+      end
+    end
+  end
+
   describe '.invalidate' do
     let(:user) { User.new(name: 'Filbert', driving_license: License.valid, trusted: ['Finnigan']) }
     let(:other_user) { User.new(name: 'Finnigan') }
@@ -131,8 +166,8 @@ RSpec.describe DeclarativePolicy do
 
     let(:keys) do
       [
-        '/dp/condition/ReadmePolicy/has_driving_license/Filbert',
-        '/dp/condition/ReadmePolicy/has_driving_license/Finnigan'
+        '/dp/condition/ReadmePolicy/has_driving_license/User:Filbert',
+        '/dp/condition/ReadmePolicy/has_driving_license/User:Finnigan'
       ]
     end
 

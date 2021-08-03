@@ -6,7 +6,7 @@ module DeclarativePolicy
       def user_key(user)
         return '<anonymous>' if user.nil?
 
-        id_for(user)
+        "#{user.class.name}:#{id_for(user)}"
       end
 
       def policy_key(user, subject)
