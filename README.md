@@ -118,7 +118,7 @@ policy = DeclarativePolicy.policy_for(user, car, cache: cache)
 policy.can?(:drive_vehicle)
 ```
 
-For more usage details, see the [documentation](docs/usage.md).
+For more usage details, see the [documentation](doc).
 
 ## Development
 
