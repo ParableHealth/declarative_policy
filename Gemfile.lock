@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    declarative_policy (1.0.0)
+    declarative_policy (1.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -65,7 +65,7 @@ GEM
       faraday (>= 0.8)
     faraday-net_http (1.0.1)
     faraday-net_http_persistent (1.1.0)
-    ffi (1.15.0-java)
+    ffi (1.15.4-java)
     git (1.8.1)
       rchardet (~> 1.8)
     gitlab (4.17.0)
@@ -211,4 +211,4 @@ DEPENDENCIES
   rubocop
 
 BUNDLED WITH
-   2.1.4
+   2.2.15
